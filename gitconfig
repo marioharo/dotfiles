@@ -1,0 +1,7 @@
+[user]
+	name = marioharo
+	email = haromario2@gmail.com
+[core]
+	editor = nano
+[init]
+	defaultBranch = main

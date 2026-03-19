@@ -1,0 +1,16 @@
+font-size = 13
+font-family = "JetBrainsMono Nerd Font"
+font-thicken = true
+
+# Rendimiento Gráfico
+background-opacity = 1.0
+background-blur = false
+
+# Interfaz y Mouse
+window-padding-x = 10
+mouse-hide-while-typing = true
+mouse-scroll-multiplier = 2
+cursor-style-blink = false
+
+# Optimización para hardware antiguo
+cursor-style = block_hollow

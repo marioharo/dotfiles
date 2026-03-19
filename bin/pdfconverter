@@ -1,0 +1,92 @@
+#!/bin/zsh
+
+# --- Configuración por defecto ---
+OUT_DIR="./pdf-convertido"
+PREFIX=""
+SUFFIX=""
+EXT=""
+
+# Función de ayuda (Help)
+usage() {
+    echo "Use: -t [ppt|doc] [-p prefijo]"
+    echo "Options:"
+    echo "  -t : Tipo de archivo a convertir (ppt o doc) [Obligatorio]"
+    echo "  -p : Prefijo opcional"
+    echo "  -s : Sufijo opcional"
+    echo "  -h : Help"
+    exit 1
+}
+
+# --- Procesamiento de Argumentos (Diseño de Interfaz) ---
+while getopts "t:p:s:h" opt; do
+    case $opt in
+        t) [[ "$OPTARG" == "ppt" ]] && EXT="pptx"
+           [[ "$OPTARG" == "doc" ]] && EXT="docx" ;;
+        p) PREFIX="$OPTARG" ;;
+        s) SUFFIX="$OPTARG" ;;
+        h) usage ;;
+        *) usage ;;
+    esac
+done
+
+# Validar que el tipo fue seleccionado
+if [[ -z "$EXT" ]]; then
+    echo "❌ Error: Debes especificar el tipo con -t [ppt|doc]"
+    usage
+fi
+
+# --- Lógica de Sistema ---
+
+# 1. Buscar archivos
+files=(*.$EXT)
+total=${#files[@]}
+
+if [[ ! -e ${files[1]} ]]; then # Verifica si existe
+    echo "❌ No se encontraron archivos .$EXT en este directorio."
+    exit 1
+fi
+
+# 2. Reconfirmación
+echo "📝 Tipo: $EXT | Destino: $OUT_DIR | Prefijo: ${PREFIX:-"(ninguno)"} | Sufijo: ${SUFFIX:-"(ninguno)"}"
+echo -n "⚠️  Se procesarán $total archivos. ¿Continuar? (y/n): "
+read -k 1 res
+echo ""
+
+if [[ $res != "y" && $res != "Y" ]]; then
+    echo "🚫 Operación cancelada."
+    exit 0
+fi
+
+# 3. Preparar entorno
+[[ ! -d "$OUT_DIR" ]] && mkdir -p "$OUT_DIR"
+
+# 4. Ejecución del Core (LibreOffice)
+echo "🚀 Convirtiendo..."
+/Applications/LibreOffice.app/Contents/MacOS/soffice --headless --convert-to pdf *.$EXT --outdir "$OUT_DIR"
+
+# 5. Lógica de transformacion (Prefijo y sufijo)
+renamed_count=0
+
+if [[ -n "$PREFIX" || -n "$SUFFIX" ]]; then
+    echo "🏷  Renombrando solo los archivos recien generados..."
+
+    for original in *.$EXT; do
+	# 1. obtenemos el nombre base
+	base="${original%.$EXT}"
+
+	# 2. definimos el archivo recien creado
+	generated_file="$OUT_DIR/$base.pdf"
+
+	# 3. definimos el nombre final deseado
+	final_name="$OUT_DIR/${PREFIX}${base}${SUFFIX}.pdf"
+	
+	# 4. Solo renombra el archivo generado
+	if [[ -f "$generated_file" && "$generated_file" != "$final_name" ]]; then
+	   mv "$generated_file" "$final_name"
+	   ((renamed_count++))
+	fi
+    done
+fi
+
+echo "✅ Proceso completado. Archivos en: $OUT_DIR"
+echo "📊 Resumen: $total convertidos | $renamed_count renombrados."

@@ -1,0 +1,23 @@
+# macOS system files
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Editor & IDEs
+*.swp
+.vscode/
+.idea/
+*.iws
+
+# Development
+node_modules/
+*.log
+
+# Personal & Security
+.localrc
+*.env
+credentials/
+
+# Repository specific
+*.bak
+Brewfile.lock.json

@@ -1,0 +1,38 @@
+version: '3.8'
+
+services:
+  # Servidor PHP + Apache
+  web:
+    image: php:8.2-apache
+    container_name: php-apache
+    ports:
+      - "8080:80"
+    volumes:
+      - ./src:/var/www/html
+    networks:
+      - red-cineverso
+
+  # Base de Datos MySQL
+  db:
+    image: mysql:8.0
+    container_name: mysql8.0
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: cine_isil 
+    networks:
+      - red-cineverso
+
+  # Gestor Visual de Base de Datos
+  phpmyadmin:
+    image: phpmyadmin:latest
+    container_name: phpmyadmin
+    ports:
+      - "8081:80"
+    environment:
+      PMA_HOST: db
+    networks:
+      - red-cineverso
+
+networks:
+  red-cineverso:
