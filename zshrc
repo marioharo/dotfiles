@@ -3,6 +3,10 @@ eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/iterm2.o
 
 ## path para los binarios
 export PATH="$HOME/dotfiles/bin:$PATH"
+# --binarios para gcloud--
+export PATH=/usr/local/share/google-cloud-sdk/bin:"$PATH"
+# --python compatible para gcloud (cambiar la ruta en versiones M1+)--
+export CLOUDSDK_PYTHON="/usr/local/opt/python@3.13/bin/python3.13"
 
 ## ALIASES
 alias zshconfig="nano ~/dotfiles/zshrc"
@@ -19,10 +23,11 @@ alias lah='ls -lah'
 alias ll='ls -ll'
 alias lad='lsd -a'
 alias lld='lsd -ll'
-alias tree='lsd --tree'
-alias tree1='lsd --tree --depth 1' 
-alias tree2='lsd --tree --depth 2' 
-alias tree3='lsd --tree --depth 3' 
+alias tree='lsd --tree -F'
+alias tree1='lsd --tree --depth 1 -F'
+alias tree2='lsd --tree --depth 2 -F'
+alias tree3='lsd --tree --depth 3 -F'
+alias treemd='lsd --tree --icon never -F --group-dirs last'
 alias md='mkdir -p'
 alias count='ls -1 | wc -l'
 alias count-a='ls -A1 | wc -l | tr -d " "'
@@ -49,20 +54,21 @@ alias 12='cd +12'
 
 ## -- de git --
 alias gst='git status'
-alias gaa='git add --all'
-alias gc='git commit'
-alias gcm='git commit -m'
+alias glg='git log'
+#alias gaa='git add --all'
+#alias gc='git commit'
+#alias gcm='git commit -m'
 
-## -- de yt-dlp --
+## -- yt-dlp --
 # Descargar video en mejor calidad pero limitando a 1080p (para no saturar tu Mac 2012)
 alias ytd="yt-dlp -f 'bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4]/best'"
-
 # Descargar solo el audio en MP3
 alias ytmp3="yt-dlp -x --audio-format mp3"
 
 
 ## PLUGINS PARA COMANDO AUTO SUGERIDO
-# -- cambia la ruta en mac M1+ /opt/homebrew/share/--
+# Instalar autosuggestions y zsh-syntax-highlighting
+# -- cambia la ruta en mac M1+ /opt/homebrew/share/... --
 source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
@@ -81,10 +87,12 @@ bindkey "$terminfo[kcuu1]" up-line-or-beginning-search
 bindkey "$terminfo[kcud1]" down-line-or-beginning-search
 
 ## --- SDKMAN! ---
+# manejador de paquedes de java
 export SDKMAN_DIR="$HOME/.sdkman"
 [[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
 
 ## --- FNM (Fast Node Manager) ---
+# Instalar fnm como manejador de paquetes de node
 eval "$(fnm env --use-on-cd --shell zsh)"
 
 ## --- PYENV para python ---
@@ -93,6 +101,7 @@ export PYENV_ROOT="$HOME/.pyenv"
 eval "$(pyenv init -)"
 
 ## --- Fuzzy Finder (fzf) ---
+# busqueda rapida pra la terminal de archivos e historial
 if [[ ! "$PATH" == */usr/local/opt/fzf/bin* ]]; then
   PATH="${PATH:+${PATH}:}/usr/local/opt/fzf/bin"
 fi
