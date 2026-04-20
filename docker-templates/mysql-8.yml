@@ -1,0 +1,29 @@
+version: '3.8'
+
+services:
+  mysql-db:
+    image: mysql:8.0
+    container_name: mysql_isil #nombre personalizable
+    restart: always
+    environment:
+      # Credenciales por defecto para desarrollo
+      MYSQL_ROOT_PASSWORD: root
+      # Base de datos inicial (opcional)
+      # MYSQL_DATABASE: nombre_de_tu_db
+    ports:
+      - "3306:3306"
+    volumes:
+      # OPCIÓN A: Bind Mount (Recomendado para ver archivos en local)
+      - ./mysql_data:/var/lib/mysql
+      # OPCIÓN B: Volumen nombrado (uso profesional)
+      # - mysql_data:/var/lib/mysql
+
+    healthcheck:
+      test: ["CMD", "mysqladmin" ,"ping", "-h", "localhost"]
+      timeout: 5s
+      retries: 5
+
+
+#volumes:
+ # mysql_data:
+  #  name: mysql_data # Ponemos nombre al volumen para identificarlo mejor
