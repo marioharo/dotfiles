@@ -1,20 +1,25 @@
-## theme to use in oh-my-posh
-eval "$(oh-my-posh init zsh --config $(brew --prefix oh-my-posh)/themes/iterm2.omp.json)"
+# --- 1. OPTIMIZACIÓN DE RUTA PARA HOMEBREW ---
+# Evitamos llamar a 'brew --prefix' que es lentísimo (700ms aprox)
+export PATH="/usr/local/bin:/usr/local/sbin:$PATH"
 
-## path para los binarios
+# --- 2. THEME (Oh-My-Posh) ---
+# Usamos la ruta directa para evitar el lag de brew --prefix
+if [ -x "/usr/local/bin/oh-my-posh" ]; then
+  eval "$(oh-my-posh init zsh --config /usr/local/opt/oh-my-posh/themes/iterm2.omp.json)"
+fi
+
+# --- 3. EXPORTS Y PATHS ---
 export PATH="$HOME/dotfiles/bin:$PATH"
-# --binarios para gcloud--
-export PATH=/usr/local/share/google-cloud-sdk/bin:"$PATH"
-# --python compatible para gcloud (cambiar la ruta en versiones M1+)--
+export PATH="/usr/local/share/google-cloud-sdk/bin:$PATH"
 export CLOUDSDK_PYTHON="/usr/local/opt/python@3.13/bin/python3.13"
+export PYENV_ROOT="$HOME/.pyenv"
+export PNPM_HOME="$HOME/Library/pnpm"
+export PATH="$PNPM_HOME:$PYENV_ROOT/bin:$PATH"
 
-## ALIASES
+# --- 4. ALIASES ---
 alias zshconfig="nano ~/dotfiles/zshrc"
 alias reload="source ~/.zshrc"
-# para sincronizar dotfiles con la repo (push)
 alias dotfiles-push='brew bundle dump --force --no-vscode && git add . && git commit -m "update: sync Brewfile and others" && git push origin main'
-
-## -- de navegacion --
 alias /='cd /'
 alias ..='cd ..'
 alias ...='cd ../..'
@@ -32,12 +37,10 @@ alias md='mkdir -p'
 alias count='ls -1 | wc -l'
 alias count-a='ls -A1 | wc -l | tr -d " "'
 
-## --activar la memoria de las rutas --
+# Navegación
 setopt AUTO_PUSHD
 setopt PUSHD_IGNORE_DUPS
 setopt PUSHD_SILENT
-
-# Navegación sincronizada por rutas
 alias d='dirs -v | head -10'
 alias 1='cd +1'
 alias 2='cd +2'
@@ -48,70 +51,55 @@ alias 6='cd +6'
 alias 7='cd +7'
 alias 8='cd +8'
 alias 9='cd +9'
-alias 10='cd +10'
-alias 11='cd +11'
-alias 12='cd +12'
 
-## -- de git --
+# Git y utilidades
 alias gst='git status'
 alias glg='git log'
-#alias gaa='git add --all'
-#alias gc='git commit'
-#alias gcm='git commit -m'
-
-## -- yt-dlp --
-# Descargar video en mejor calidad pero limitando a 1080p (para no saturar tu Mac 2012)
 alias ytd="yt-dlp -f 'bestvideo[ext=mp4][height<=1080]+bestaudio[ext=m4a]/best[ext=mp4]/best'"
-# Descargar solo el audio en MP3
 alias ytmp3="yt-dlp -x --audio-format mp3"
 
+# --- 5. LAZY LOADING (La magia para la velocidad) ---
 
-## PLUGINS PARA COMANDO AUTO SUGERIDO
-# Instalar autosuggestions y zsh-syntax-highlighting
-# -- cambia la ruta en mac M1+ /opt/homebrew/share/... --
+# SDKMAN! Lazy Load
+export SDKMAN_DIR="$HOME/.sdkman"
+sdk() {
+    unset -f sdk
+    [[ -s "$SDKMAN_DIR/bin/sdkman-init.sh" ]] && source "$SDKMAN_DIR/bin/sdkman-init.sh"
+    sdk "$@"
+}
+
+# FNM Lazy Load
+fnm() {
+    unset -f fnm
+    eval "$(fnm env --use-on-cd --shell zsh)"
+    fnm "$@"
+}
+
+# Pyenv Lazy Load
+pyenv() {
+    unset -f pyenv
+    eval "$(pyenv init -)"
+    pyenv "$@"
+}
+
+# Angular completion Lazy Load
+ng() {
+    unset -f ng
+    source <(command ng completion script)
+    command ng "$@"
+}
+
+# --- 6. PLUGINS Y FZF (Al final) ---
+# FZF (Carga directa es más rápida que el subshell)
+[[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+
 source /usr/local/share/zsh-autosuggestions/zsh-autosuggestions.zsh
+# Syntax highlighting SIEMPRE el último
 source /usr/local/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
-# --- BÚSQUEDA INTELIGENTE EN EL HISTORIAL ---
-# Cargar el módulo de selección de comandos
+# --- 7. HISTORIAL INTELIGENTE ---
 autoload -Uz up-line-or-beginning-search down-line-or-beginning-search
 zle -N up-line-or-beginning-search
 zle -N down-line-or-beginning-search
-
-# Vincular las flechas arriba y abajo
-bindkey '^[[A' up-line-or-beginning-search # Flecha arriba
-bindkey '^[[B' down-line-or-beginning-search # Flecha abajo
-
-# Si usas iTerm2 o Ghostty con ciertas configuraciones, a veces las flechas se mandan distinto:
-bindkey "$terminfo[kcuu1]" up-line-or-beginning-search
-bindkey "$terminfo[kcud1]" down-line-or-beginning-search
-
-## --- SDKMAN! ---
-# manejador de paquedes de java
-export SDKMAN_DIR="$HOME/.sdkman"
-[[ -s "$HOME/.sdkman/bin/sdkman-init.sh" ]] && source "$HOME/.sdkman/bin/sdkman-init.sh"
-
-## --- FNM (Fast Node Manager) ---
-# Instalar fnm como manejador de paquetes de node
-eval "$(fnm env --use-on-cd --shell zsh)"
-
-## --- PYENV para python ---
-export PYENV_ROOT="$HOME/.pyenv"
-[[ -d $PYENV_ROOT/bin ]] && export PATH="$PYENV_ROOT/bin:$PATH"
-eval "$(pyenv init -)"
-
-## --- Fuzzy Finder (fzf) ---
-# busqueda rapida pra la terminal de archivos e historial
-if [[ ! "$PATH" == */usr/local/opt/fzf/bin* ]]; then
-  PATH="${PATH:+${PATH}:}/usr/local/opt/fzf/bin"
-fi
-
-source <(fzf --zsh)
-
-# pnpm
-export PNPM_HOME="/Users/marioharo/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
+bindkey '^[[A' up-line-or-beginning-search 
+bindkey '^[[B' down-line-or-beginning-search

@@ -56,4 +56,4 @@ Este entorno de desarrollo es posible gracias al increíble trabajo de las sigui
 * **[Homebrew](https://brew.sh/)**: El gestor de paquetes que mantiene mi sistema organizado.
 * **[Ghostty](https://ghostty.org/)**: Por crear la terminal más rápida y estética que he probado.
 
-Hecho con ☕ y perseverancia por **Mario Haro**.
+Repo en desarrollo... hecho con ☕ y perseverancia por **Mario Haro**.
